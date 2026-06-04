@@ -1,0 +1,26 @@
+name: Build iOS dylib
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build bypass.dylib
+        run: |
+          clang -shared -arch arm64 -framework Foundation -lobjc \
+            -o bypass.dylib bypass.m \
+            -isysroot $(xcrun --sdk iphoneos --show-sdk-path) \
+            -target arm64-apple-ios14.0 \
+            -Wno-unused-variable
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bypass-dylib
+          path: bypass.dylib
